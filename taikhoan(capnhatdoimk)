@@ -1,0 +1,35 @@
+private void btnCapNhap_Click(object sender, EventArgs e)
+ {
+     string passWord = txtMatKhau.Text;
+     string userName = txtUserName.Text;
+     if (KiểmTraMatKhau(passWord))
+     {
+         ThaydoiAccount(userName, passWord);
+     }
+     else
+     {
+         MessageBox.Show("Mật khẩu không hợp lệ. Vui lòng nhập mật khẩu dài hơn 8 kí tự và có ít nhất một kí tự hoa, một kí tự đặc biệt.");
+     }
+ }
+ private bool KiểmTraMatKhau(string passWord)
+ {
+   
+     if (passWord.Length < 9)
+     {
+         return false;
+     }
+
+     // Kiểm tra kí tự hoa
+     if (!passWord.Any(char.IsUpper))
+     {
+         return false;
+     }
+
+     // Kiểm tra kí tự đặc biệt
+     if (!passWord.Any(char.IsSymbol) && !passWord.Any(char.IsPunctuation))
+     {
+         return false;
+     }
+
+     return true;
+ }
