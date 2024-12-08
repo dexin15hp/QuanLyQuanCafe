@@ -1,0 +1,26 @@
+String connectionString = @"";
+        private DataTable getData(String query)
+        {
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                var com = new SqlCommand(query, conn);
+                com.ExecuteNonQuery();
+                var dt = new DataTable();
+                var da = new SqlDataAdapter(com);
+                da.Fill(dt);
+                conn.Close();
+                return dt;
+            }
+        }
+        private bool excute(String query)
+        {
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                var com = new SqlCommand(query, conn);
+                com.ExecuteNonQuery();
+                conn.Close();
+                return true;
+            }
+        }
