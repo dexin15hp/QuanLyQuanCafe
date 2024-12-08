@@ -1,0 +1,47 @@
+void EditAccount(string userName, string displayName, int type)
+{
+    if (string.IsNullOrWhiteSpace(userName))
+    {
+        MessageBox.Show("Tên tài khoản không được để trống.");
+        return;
+    }
+    if (string.IsNullOrWhiteSpace(displayName))
+    {
+        MessageBox.Show("Tên hiển thị không được để trống.");
+        return;
+    }
+    if (type != 0 && type != 1)
+    {
+        MessageBox.Show("Cập nhật tài khoản không hợp lệ. Chỉ chấp nhận loại 0 hoặc 1.");
+        return;
+    }
+
+
+    if (AccountDAO.Instance.InsertAccount(userName, displayName, type))
+    {
+        MessageBox.Show(type == 0 ? "Cập nhật tài khoản nhân viên thành công" : "Cập nhật tài khoản quản trị viên thành công");
+    }
+    else
+    {
+        MessageBox.Show("Cập nhật tài khoản thất bại");
+    }
+
+    if (AccountDAO.Instance.IsUserNameExists(userName) && userName != txtUserName.Text)
+    {
+        MessageBox.Show("Tên tài khoản đã tồn tại. Vui lòng chọn tên khác.");
+        return;
+    }
+
+
+    if (AccountDAO.Instance.UpdateAccount(userName, displayName, type))
+    {
+        MessageBox.Show("Cập nhật tài khoản thành công");
+    }
+    else
+    {
+        MessageBox.Show("Cập nhật tài khoản thất bại");
+    }
+
+    
+    loadAccount();
+}
