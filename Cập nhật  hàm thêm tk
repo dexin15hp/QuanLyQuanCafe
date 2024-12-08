@@ -1,0 +1,41 @@
+ void addAccount(string userName, string displayName, int type)
+ {
+    
+     if (string.IsNullOrWhiteSpace(userName))
+     {
+         MessageBox.Show("Tên tài khoản không được để trống.");
+         return;
+     }
+     if (string.IsNullOrWhiteSpace(displayName))
+     {
+         MessageBox.Show("Tên hiển thị không được để trống.");
+         return;
+     }
+
+     
+     if (AccountDAO.Instance.IsUserNameExists(userName))
+     {
+         MessageBox.Show("Tên tài khoản đã tồn tại. Vui lòng chọn tên khác.");
+         return;
+     }
+
+     
+     if (type != 0 && type != 1)
+     {
+         MessageBox.Show("Loại tài khoản không hợp lệ. Chỉ chấp nhận loại 0 hoặc 1.");
+         return;
+     }
+
+     
+     if (AccountDAO.Instance.InsertAccount(userName, displayName, type))
+     {
+         MessageBox.Show(type == 0 ? "Thêm tài khoản nhân viên thành công" : "Thêm tài khoản quản trị viên thành công");
+     }
+     else
+     {
+         MessageBox.Show("Thêm tài khoản thất bại");
+     }
+
+   
+     loadAccount();
+ }
