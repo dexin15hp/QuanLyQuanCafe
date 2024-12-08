@@ -1,0 +1,161 @@
+using QuanLyQuanCafe.DAO;
+using System;
+using System.ComponentModel;
+using System.Data;
+using System.Windows.Forms;
+
+namespace QuanLyQuanCafe
+{
+    public partial class Danhsachban : Form
+    {
+        BindingSource tableFoodList = new BindingSource();
+
+        public Danhsachban()
+        {
+            InitializeComponent();
+            dgvDanhsachban.DataSource = tableFoodList;
+            loadTableFood();
+            addTableBinding();
+        }
+
+        void loadTableFood()
+        {
+            try
+            {
+                tableFoodList.DataSource = TableDAO.Instance.getListTableFood();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tải danh sách bàn: {ex.Message}");
+            }
+        }
+
+        void addTableBinding()
+        {
+            try
+            {
+                txtID.DataBindings.Add("Text", dgvDanhsachban.DataSource, "ID", true, DataSourceUpdateMode.Never);
+                txtTenBan.DataBindings.Add("Text", dgvDanhsachban.DataSource, "Name", true, DataSourceUpdateMode.Never);
+                cbTrangThai.DataBindings.Add("Text", dgvDanhsachban.DataSource, "Status", true, DataSourceUpdateMode.Never);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi thêm binding: {ex.Message}");
+            }
+        }
+
+        private void iBtnDSBxem_Click(object sender, EventArgs e)
+        {
+            loadTableFood();
+        }
+
+        void insertTableFood(string name, string status)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(status))
+                {
+                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin.");
+                    return;
+                }
+
+                // Kiểm tra tên bàn đã tồn tại
+                if (TableDAO.Instance.CheckTableNameExists(-1, name)) // ID là -1 khi thêm mới
+                {
+                    MessageBox.Show("Tên bàn đã tồn tại. Vui lòng chọn tên khác.");
+                    return;
+                }
+
+                if (TableDAO.Instance.InsertTableFood(name, status))
+                {
+                    MessageBox.Show("Thêm bàn thành công");
+                }
+                else
+                {
+                    MessageBox.Show("Thêm bàn thất bại");
+                }
+                loadTableFood();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi thêm bàn: {ex.Message}");
+            }
+        }
+
+        void updateTableFood(int id, string name, string status)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(status))
+                {
+                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin.");
+                    return;
+                }
+
+                // Kiểm tra tên bàn đã tồn tại
+                if (TableDAO.Instance.CheckTableNameExists(id, name)) // Kiểm tra tên bàn với ID đã cho
+                {
+                    MessageBox.Show("Tên bàn đã tồn tại. Vui lòng chọn tên khác.");
+                    return;
+                }
+
+                if (TableDAO.Instance.UpdateTableFood(id, name, status))
+                {
+                    MessageBox.Show("Sửa bàn thành công");
+                }
+                else
+                {
+                    MessageBox.Show("Sửa bàn thất bại");
+                }
+                loadTableFood();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi sửa bàn: {ex.Message}");
+            }
+        }
+
+        void deleteTableFood(int id)
+        {
+            try
+            {
+                if (TableDAO.Instance.DeleteTableFood(id))
+                {
+                    MessageBox.Show("Xóa bàn thành công");
+                }
+                else
+                {
+                    MessageBox.Show("Xóa bàn thất bại");
+                }
+                loadTableFood();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xóa bàn: {ex.Message}");
+            }
+        }
+
+        private void iBtnDSBthem_Click(object sender, EventArgs e)
+        {
+            string name = txtTenBan.Text;
+            string status = cbTrangThai.Text;
+
+            insertTableFood(name, status);
+        }
+
+        private void iBtnDSBxoa_Click(object sender, EventArgs e)
+        {
+            int id = Convert.ToInt32(txtID.Text);
+            deleteTableFood(id);
+        }
+
+        private void iBtnDSBsua_Click(object sender, EventArgs e)
+        {
+            int id = Convert.ToInt32(txtID.Text);
+            string name = txtTenBan.Text;
+            string status = cbTrangThai.Text;
+
+            updateTableFood(id, name, status);
+        }
+    }
+}
