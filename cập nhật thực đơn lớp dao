@@ -1,0 +1,131 @@
+using QuanLyQuanCafe.DTO;
+using System;
+using System.Collections.Generic;
+using System.Data;
+
+namespace QuanLyQuanCafe.DAO
+{
+    public class FoodDAO
+    {
+        private static FoodDAO instance;
+
+        public static FoodDAO Instance
+        {
+            get { if (instance == null) instance = new FoodDAO(); return FoodDAO.instance; }
+            private set { FoodDAO.instance = value; }
+        }
+
+        private FoodDAO() { }
+
+        
+        public List<Food> GetFoodByCategoryID(int id)
+        {
+            List<Food> list = new List<Food>();
+            string query = "SELECT * FROM Food WHERE idCategory = " + id;
+            DataTable data = DataProvider.Instance.ExecuteQuery(query);
+            foreach (DataRow row in data.Rows)
+            {
+                Food food = new Food(row);
+                list.Add(food);
+            }
+            return list;
+        }
+
+        // Tìm kiếm
+        public List<Food> SearchFood(string searchQuery)
+        {
+            List<Food> list = new List<Food>();
+            searchQuery = searchQuery.Trim();
+
+            if (string.IsNullOrEmpty(searchQuery))
+            {
+                return list;
+            }
+
+            string query = string.Format(
+                "SELECT * FROM Food WHERE name LIKE N'%{0}%' OR CONVERT(VARCHAR, price) LIKE '%{0}%' OR CONVERT(VARCHAR, id) LIKE '%{0}%'", searchQuery);
+
+            DataTable data = DataProvider.Instance.ExecuteQuery(query);
+
+            foreach (DataRow row in data.Rows)
+            {
+                Food food = new Food(row);
+                list.Add(food);
+            }
+
+            return list;
+        }
+
+        
+        public List<Food> GetListFood()
+        {
+            List<Food> list = new List<Food>();
+            string query = "SELECT * FROM Food";
+            DataTable data = DataProvider.Instance.ExecuteQuery(query);
+            foreach (DataRow row in data.Rows)
+            {
+                Food food = new Food(row);
+                list.Add(food);
+            }
+            return list;
+        }
+
+        // Thêm
+        public bool InsertFood(string name, int categoryID, float price)
+        {
+            // Kiểm tra
+            string checkQuery = string.Format("SELECT COUNT(*) FROM Food WHERE name = N'{0}' AND idCategory = {1}", name, categoryID);
+            int foodExists = (int)DataProvider.Instance.ExecuteScalar(checkQuery);
+
+            if (foodExists > 0)
+            {
+                return false; 
+            }
+
+           
+            string query = string.Format("INSERT INTO Food (name, idCategory, price) VALUES (N'{0}', {1}, {2})", name, categoryID, price);
+            int result = DataProvider.Instance.ExecuteNonQuery(query);
+            return result > 0;
+        }
+
+        // Cập nhật
+        public bool UpdateFood(int idFood, string name, int categoryID, float price)
+        {
+            
+            string checkQuery = string.Format("SELECT COUNT(*) FROM Food WHERE name = N'{0}' AND idCategory = {1} AND id != {2}", name, categoryID, idFood);
+            int foodExists = (int)DataProvider.Instance.ExecuteScalar(checkQuery);
+
+            if (foodExists > 0)
+            {
+                return false; 
+            }
+
+            
+            string query = string.Format("UPDATE Food SET name = N'{0}', idCategory = {1}, price = {2} WHERE id = {3}", name, categoryID, price, idFood);
+            int result = DataProvider.Instance.ExecuteNonQuery(query);
+            return result > 0;
+        }
+
+        // Xóa
+        public bool DeleteFood(int idFood)
+        {
+            BillInfoDAO.Instance.DeleteBillInfoByFoodID(idFood);
+
+            string query = string.Format("DELETE FROM Food WHERE id = {0}", idFood);
+            int result = DataProvider.Instance.ExecuteNonQuery(query);
+            return result > 0;
+        }
+
+       
+        public bool IsFoodExistsInCategory(string foodName, int categoryID, int foodID = 0)
+        {
+           
+            string query = foodID == 0 ?
+                string.Format("SELECT COUNT(*) FROM Food WHERE name = N'{0}' AND idCategory = {1}", foodName, categoryID) :
+                string.Format("SELECT COUNT(*) FROM Food WHERE name = N'{0}' AND idCategory = {1} AND id != {2}", foodName, categoryID, foodID);
+
+            int count = (int)DataProvider.Instance.ExecuteScalar(query);
+            return count > 0;
+        }
+    }
+}
